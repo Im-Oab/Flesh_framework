@@ -1,3 +1,4 @@
+use lerp::Lerp;
 use macroquad::prelude::*;
 use std::collections::VecDeque;
 
@@ -17,7 +18,7 @@ enum GameplayState {
 
 pub struct GameplayScene {
     state: GameplayState,
-    tick:u128,
+    tick: u128,
 
     surface_distance: f32,
     player: Player,
@@ -52,17 +53,14 @@ impl GameScene for GameplayScene {
 
     fn update(&mut self) -> Result<SceneTransition, i32> {
         match self.state {
-            GameplayState::Start => {
-                match self.tick.checked_sub(crate::ONE_FRAME.as_millis())
-                {
-                    Some(v) => {
-                        self.tick = v;
-                    }
-                    None => {
-                        self.state = GameplayState::Playing;
-                    }
+            GameplayState::Start => match self.tick.checked_sub(crate::ONE_FRAME.as_millis()) {
+                Some(v) => {
+                    self.tick = v;
                 }
-            }
+                None => {
+                    self.state = GameplayState::Playing;
+                }
+            },
             GameplayState::Playing => {
                 return self.update_playing();
             }
@@ -95,16 +93,17 @@ impl GameScene for GameplayScene {
 
         self.draw_ui();
 
-        if matches!(self.state, GameplayState::Start){
+        if matches!(self.state, GameplayState::Start) {
             let seconds = (self.tick as f32 / 1000.0).ceil() as u128;
-            crate::core::utils::draw_text_center(format!("{}", seconds).as_str(), 96, crate::GAME_HEIGHT / 2.0);
-        }
-        else if matches!(self.state, GameplayState::GameOver)
-        {
+            crate::core::utils::draw_text_center(
+                format!("{}", seconds).as_str(),
+                96,
+                crate::GAME_HEIGHT / 2.0,
+            );
+        } else if matches!(self.state, GameplayState::GameOver) {
             crate::core::utils::draw_text_center("GAME OVER", 72, crate::GAME_HEIGHT / 2.0);
             crate::core::utils::draw_text_center("`Space` for retry", 32, crate::GAME_HEIGHT * 0.6);
         }
-        
     }
 }
 
@@ -124,18 +123,13 @@ impl GameplayScene {
         for obstacle in self.obstacles.iter_mut() {
             obstacle.update(speed);
             if self.player.is_invincible() == false && obstacle.is_hit(self.player.position, 8.0) {
-                
                 obstacle.hit();
 
-                if self.speed > MAX_SPEED / 2.0
-                {
+                if self.speed > MAX_SPEED / 2.0 {
                     self.speed = -self.speed * 0.6;
-                }
-                else
-                {
+                } else {
                     self.speed *= 0.1;
                 }
-                
 
                 let direction = {
                     if self.player.position.x < obstacle.position.x {
@@ -176,12 +170,9 @@ impl GameplayScene {
         self.surface_distance -= (self.speed) * 0.01;
 
         if self.player.is_dead() {
-            
             self.state = GameplayState::GameOver;
             self.tick = 0;
-        }
-        else if self.surface_distance <= 0.0
-        {
+        } else if self.surface_distance <= 0.0 {
             let mut scene = crate::scenes::ending::EndingScene::new();
             scene.init();
 
@@ -220,11 +211,29 @@ impl GameplayScene {
     }
 }
 
-impl GameplayScene
-{
-    fn draw_ui(&self)
-    {
+impl GameplayScene {
+    fn draw_ui(&self) {
         let metre = self.surface_distance.ceil() as i32;
         crate::core::utils::draw_text_center(format!("{} cm", metre).as_str(), 72, 100.0);
+
+        let percentage = self.player.water as f32 / 5000.0;
+        let width = crate::GAME_WIDTH - 20.0;
+        let current_width = 0f32.lerp(width, percentage);
+        draw_line(
+            10.0,
+            crate::GAME_HEIGHT - 20.0,
+            crate::GAME_WIDTH - 10.0,
+            crate::GAME_HEIGHT - 20.0,
+            8.0,
+            BLACK,
+        );
+        draw_line(
+            10.0,
+            crate::GAME_HEIGHT - 20.0,
+            10.0 + current_width,
+            crate::GAME_HEIGHT - 20.0,
+            8.0,
+            SKYBLUE,
+        );
     }
 }

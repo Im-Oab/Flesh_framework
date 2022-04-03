@@ -17,3 +17,7 @@ I have finished core gameplay for player control and avoiding mechanic.
 # 3 April 2022, 15PM :
 
 I have finished the game flow. The player can start from the `Title` scene and play until reaching the `Ending` scene. The game needs a lot of polish and add more assets.
+
+# 4 April 2022 9AM :
+
+I added ui to show the current player energy before go the work. Maybe this game can finish intime for `Jam(72 hours)`
