@@ -5,12 +5,12 @@ use std::sync::Mutex;
 use std::time::Duration;
 
 pub mod core;
-pub mod scenes;
 pub mod game;
+pub mod scenes;
 
 use crate::core::animation::AnimationManager;
-use crate::core::textures::TextureManager;
 use crate::core::scene::{GameScene, SceneTransition};
+use crate::core::textures::TextureManager;
 
 pub const ONE_FRAME: Duration = Duration::from_millis(1000 / 60);
 pub const GAME_WIDTH: f32 = 300.0;
@@ -122,7 +122,7 @@ async fn init(scenes: &mut Vec<Box<dyn GameScene>>) {
         println!("Animation names: {:?}", animation_manager.animations.keys());
     }
 
-    let mut title_scene = scenes::gameplay::GameplayScene::new();
+    let mut title_scene = scenes::title::TitleScene::new();
     title_scene.init();
     scenes.push(Box::new(title_scene));
 }
