@@ -10,6 +10,7 @@ pub mod scenes;
 
 use crate::core::animation::AnimationManager;
 use crate::core::scene::{GameScene, SceneTransition};
+use crate::core::screen_scaler::ScreenScaler;
 use crate::core::textures::TextureManager;
 
 pub const ONE_FRAME: Duration = Duration::from_millis(1000 / 60);
@@ -40,13 +41,17 @@ fn window_conf() -> window::Conf {
 async fn main() {
     let mut scenes: Vec<Box<dyn GameScene>> = vec![];
 
+    let mut scaler = ScreenScaler::new(crate::GAME_WIDTH as u32, crate::GAME_HEIGHT as u32);
+
     init(&mut scenes).await;
     loop {
         if is_key_down(KeyCode::Escape) {
             break;
         }
         update(&mut scenes);
+        scaler.begin();
         draw(&mut scenes);
+        scaler.end();
 
         next_frame().await
     }
