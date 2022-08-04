@@ -3,6 +3,7 @@ use macroquad::prelude::*;
 use macroquad::window;
 use std::sync::Mutex;
 use std::time::Duration;
+use std::time::Instant;
 
 pub mod core;
 pub mod game;
@@ -13,7 +14,9 @@ use crate::core::scene::{GameScene, SceneTransition};
 use crate::core::screen_scaler::ScreenScaler;
 use crate::core::textures::TextureManager;
 
-pub const ONE_FRAME: Duration = Duration::from_millis(1000 / 60);
+pub const LIMIT_FPS: u64 = 60;
+pub const ONE_FRAME: Duration = Duration::from_millis(1000 / crate::LIMIT_FPS);
+
 pub const GAME_WIDTH: f32 = 300.0;
 pub const GAME_HEIGHT: f32 = 800.0;
 
@@ -34,6 +37,7 @@ fn window_conf() -> window::Conf {
         fullscreen: false,
         sample_count: 1,
         icon: None,
+        ..Default::default()
     }
 }
 
@@ -44,16 +48,34 @@ async fn main() {
     let mut scaler = ScreenScaler::new(crate::GAME_WIDTH as u32, crate::GAME_HEIGHT as u32);
 
     init(&mut scenes).await;
+    let tick_rate =  Duration::from_secs_f64(1.0 / crate::LIMIT_FPS as f64);
+    let mut last_time = Instant::now();
+    let mut time_passed = Duration::from_secs(0);
     loop {
         if is_key_down(KeyCode::Escape) {
             break;
         }
-        update(&mut scenes);
+
+        let curr_time = Instant::now();
+        let diff_time = curr_time - last_time;
+        last_time = curr_time;
+        
+        time_passed = (time_passed + diff_time).min(tick_rate * 8);
+        while time_passed >= tick_rate
+        {
+            update(&mut scenes);
+
+            time_passed -= tick_rate;
+        }
+        
+            
         scaler.begin();
         draw(&mut scenes);
         scaler.end();
 
         next_frame().await
+        
+        
     }
 }
 
