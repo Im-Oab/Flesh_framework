@@ -1,6 +1,7 @@
 use macroquad::prelude::*;
 
 /// Use some logic for calculate screen_rect from `Tetra` engine.
+/// It will keep same aspect ratio when changing windows size
 pub struct ScreenScaler {
     canvas: RenderTarget,
     camera: Camera2D,
@@ -24,10 +25,12 @@ impl ScreenScaler {
         }
     }
 
+    /// Need to call before draw anything. It will set render_target
     pub fn begin(&mut self) {
         set_camera(&self.camera);
     }
 
+    // Need to call this at the end of scene.draw() to show render_target on screen with same aspect ratio
     pub fn end(&mut self) {
         set_default_camera();
         clear_background(BLACK);
@@ -51,6 +54,7 @@ impl ScreenScaler {
     }
 }
 
+// This part use the code from `Tetra` framework for calculating screen size.
 pub fn get_screen_rect(
     inner_width: u32,
     inner_height: u32,

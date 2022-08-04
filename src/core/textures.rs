@@ -16,6 +16,7 @@ impl TextureManager {
         }
     }
 
+    // Load texture from file and keep Texture2D on HashMap. It can retrieve using texture_id(u128)
     pub async fn load_from_file(&mut self, name: &str, path: &str) -> u128 {
         match load_texture(path).await {
             Ok(texture) => {

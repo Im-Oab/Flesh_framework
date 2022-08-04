@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 use std::time::Duration;
 
+/// Contain texture_id (u128) in `frames` and use it for playing animation.
+/// texture_id will link to texture on crate::TEXTURE_MANAGER
+/// The Animation is member of `Sprite`.
 pub struct Animation {
     pub frame_length: Duration,
     pub frames: Vec<u128>,

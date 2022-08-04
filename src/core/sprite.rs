@@ -3,6 +3,7 @@ use std::time::Duration;
 
 use macroquad::prelude::*;
 
+/// Draw static image or animation on scren.
 pub struct Sprite {
     pause: bool,
 
@@ -60,6 +61,7 @@ impl Sprite {
         self.frame_index = self.frame_index % frames;
     }
 
+    // Play animation
     pub fn play(&mut self, new_animation: &Animation) {
         self.pause = false;
         self.frame_index = 0;
@@ -69,12 +71,14 @@ impl Sprite {
         println!("Sprite: play(): new_animation {:?}", new_animation.frames);
     }
 
+    // restart the same animation from first frame
     pub fn restart_animation(&mut self) {
         self.frame_duration = Duration::from_millis(0);
         self.frame_index = 0;
         self.pause = false;
     }
 
+    /// internal function for changing current frame of the animation.
     fn advance(&mut self) -> bool {
         let frame_length = self.animation.frame_length;
 
@@ -108,6 +112,7 @@ impl Sprite {
         self.advance()
     }
 
+    // draw on screen at position and rotation. (-1.0, 1.0)
     pub fn draw(&self, position: Vec2, rotation: f32) {
         let frame_index = self.frame_index;
         match self.animation.frames.get(frame_index) {
