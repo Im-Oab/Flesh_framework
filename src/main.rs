@@ -48,6 +48,7 @@ async fn main() {
     let mut scaler = ScreenScaler::new(crate::GAME_WIDTH as u32, crate::GAME_HEIGHT as u32);
 
     init(&mut scenes).await;
+    let early_tick_rate =  Duration::from_secs_f64(1.0 / (crate::LIMIT_FPS + 2) as f64);
     let tick_rate =  Duration::from_secs_f64(1.0 / crate::LIMIT_FPS as f64);
     let mut last_time = Instant::now();
     let mut time_passed = Duration::from_secs(0);
@@ -60,12 +61,18 @@ async fn main() {
         let diff_time = curr_time - last_time;
         last_time = curr_time;
         
+        // The update without draw can't happen more than 8 frames
+        // https://medium.com/@tglaiel/how-to-make-your-game-run-at-60fps-24c61210fe75
         time_passed = (time_passed + diff_time).min(tick_rate * 8);
-        while time_passed >= tick_rate
+        while time_passed >= early_tick_rate
         {
             update(&mut scenes);
 
             time_passed -= tick_rate;
+            if time_passed < Duration::ZERO
+            {
+                time_passed = Duration::ZERO;
+            }
         }
         
             
